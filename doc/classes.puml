@@ -1,0 +1,22 @@
+@startuml
+allowmixing
+object Thread
+package "DALI Subsystem"{
+object DALI
+object DALI_HW
+}
+component FASTLed
+object Wifi
+object LedController
+
+
+DALI_HW : write()
+DALI_HW : read()
+
+DALI : run()
+
+DALI  --> DALI_HW
+
+DALI  --|> Thread
+
+@enduml
