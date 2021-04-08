@@ -36,12 +36,75 @@
                     CMD_##label##_G15 = id + 14,\
                     CMD_##label##_G16 = id + 15,
 #define DALI_AUTO_DEF(a,b,c,d,e) c(a,b)
-#else
-#ifdef AUTO_STR
+#endif
 
+#ifdef AUTO_STR
 #define DALI_AUTO_DEF(a,b,c,d,e) #a,
 #endif
+
+#ifdef AUTO_ARR_ENUM
+#define DALI_AUTO_DEF(id, id_num, addr_type, dt, flags) ARR_##id,
 #endif
+
+
+#if defined(AUTO_LUT_102) || defined (AUTO_LUT_207) || defined (AUTO_LUT_209)
+#define NONE_ID(id, offset) [CMD_##id + offset] = ARR_##id,
+#define ADDR_ID(id, offset) [CMD_##id + offset] = ARR_##id,
+#define DAPC_ID(id, offset) /*DAPC is special case without real DALI identifier here*/
+#define SCENE_ID(id, offset) [CMD_##id##_S1 + offset] = ARR_##id,\
+                    [CMD_##id##_S2 + offset] = ARR_##id,\
+                    [CMD_##id##_S3 + offset] = ARR_##id,\
+                    [CMD_##id##_S4 + offset] = ARR_##id,\
+                    [CMD_##id##_S5 + offset] = ARR_##id,\
+                    [CMD_##id##_S6 + offset] = ARR_##id,\
+                    [CMD_##id##_S7 + offset] = ARR_##id,\
+                    [CMD_##id##_S8 + offset] = ARR_##id,\
+                    [CMD_##id##_S9 + offset] = ARR_##id,\
+                    [CMD_##id##_S10 + offset] = ARR_##id,\
+                    [CMD_##id##_S11 + offset] = ARR_##id,\
+                    [CMD_##id##_S12 + offset] = ARR_##id,\
+                    [CMD_##id##_S13 + offset] = ARR_##id,\
+                    [CMD_##id##_S14 + offset] = ARR_##id,\
+                    [CMD_##id##_S15 + offset] = ARR_##id,\
+                    [CMD_##id##_S16 + offset] = ARR_##id,
+#define GROUP_ID(id, offset) [CMD_##id##_G1 + offset] = ARR_##id,\
+                    [CMD_##id##_G2 + offset] = ARR_##id,\
+                    [CMD_##id##_G3 + offset] = ARR_##id,\
+                    [CMD_##id##_G4 + offset] = ARR_##id,\
+                    [CMD_##id##_G5 + offset] = ARR_##id,\
+                    [CMD_##id##_G6 + offset] = ARR_##id,\
+                    [CMD_##id##_G7 + offset] = ARR_##id,\
+                    [CMD_##id##_G8 + offset] = ARR_##id,\
+                    [CMD_##id##_G9 + offset] = ARR_##id,\
+                    [CMD_##id##_G10 + offset] = ARR_##id,\
+                    [CMD_##id##_G11 + offset] = ARR_##id,\
+                    [CMD_##id##_G12 + offset] = ARR_##id,\
+                    [CMD_##id##_G13 + offset] = ARR_##id,\
+                    [CMD_##id##_G14 + offset] = ARR_##id,\
+                    [CMD_##id##_G15 + offset] = ARR_##id,\
+                    [CMD_##id##_G16 + offset] = ARR_##id,
+#ifdef AUTO_LUT_102
+#define IEC_102(id_, addr_type) addr_type(id_, 0)
+#define IEC_207(id_, addr_type)
+#define IEC_209(id_, addr_type)
+#endif 
+
+#ifdef AUTO_LUT_207
+#define IEC_102(id_, addr_type) 
+#define IEC_207(id_, addr_type) addr_type(id_, -224)
+#define IEC_209(id_, addr_type)
+#endif 
+
+#ifdef AUTO_LUT_209
+#define IEC_102(id_, addr_type) 
+#define IEC_207(id_, addr_type)
+#define IEC_209(id_, addr_type) addr_type(id_, -224)
+#endif 
+
+#define DALI_AUTO_DEF(id, id_num, addr_type, dt, flags) dt(id,addr_type)
+#endif
+
+
 /*Idea:
 LUTs: DALI ID to idx in table
 CMDS are contained in one big array 
@@ -63,7 +126,7 @@ E_ARR_DALI LUT_102[]=
 /** definitions and customizations of DALI CMDs**/
 /**                          ID,                                    ID_NUM,          **/
 
-DALI_AUTO_DEF( DUMMY,                               0u,         NONE_ID,        IEC_102,    0) /*Marker for not implemented / available commands*/
+DALI_AUTO_DEF( DUMMY,                               0u,         DAPC_ID,        IEC_102,    0) /*Marker for not implemented / available commands*/
 DALI_AUTO_DEF( DAPC,                                0u,         DAPC_ID,        IEC_102,    0)
 DALI_AUTO_DEF( OFF,                                 0u,         NONE_ID,        IEC_102,    0)
 DALI_AUTO_DEF( UP,                                  1u,         NONE_ID,        IEC_102,    0)
@@ -130,7 +193,7 @@ DALI_AUTO_DEF( QUERY_RANDOM_ADDRESS_M,              0xC3u,      NONE_ID,        
 DALI_AUTO_DEF( QUERY_RANDOM_ADDRESS_L,              0xC4u,      NONE_ID,        IEC_102,    F_ANSWER)
 DALI_AUTO_DEF( READ_MEMORY_LOCATION,                0xC5u,      NONE_ID,        IEC_102,    F_ANSWER)
 
-DALI_AUTO_DEF( QUERY_EXTENDED_VERSION_NUMBER,	    0xFFu,	    NONE_ID,        IEC_102,    F_ANSWER)
+DALI_AUTO_DEF( QUERY_EXTENDED_VERSION_NUMBER,       0xFFu,      NONE_ID,        IEC_102,    F_ANSWER)
 
 DALI_AUTO_DEF( TERMINATE,                           0xA1,       ADDR_ID,        IEC_102,    0)
 DALI_AUTO_DEF( DTR0,                                0xA3,       ADDR_ID,        IEC_102,    0)
@@ -153,57 +216,85 @@ DALI_AUTO_DEF( WRITE_MEMORY_LOCATION_NO_LOCATION,   0xC9,       ADDR_ID,        
 
 
 
-DALI_AUTO_DEF( REFERENCE_SYSTEM_POWER,	            224u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( ENABLE_CURRENT_PROTECTOR,	        225u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( DISABLE_CURRENT_PROTECTOR,	        226u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( SELECT_DIMMING_CURVE,  	            227u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( STORE_DTR_AS_FAST_FADE_TIME,	        228u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_GEAR_TYPE,	                    237u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_DIMMING_CURVE,	                238u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_POSSIBLE_OPERATING_MODES,	    239u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_FEATURES,	                    240u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_FAILURE_STATUS,	            241u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_SHORT_CIRCUIT,	                242u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_OPEN_CIRCUIT,	                243u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_LOAD_DECREASE,	                244u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_LOAD_INCREASE,	                245u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_CURRENT_PROTECTOR_ACTIVE,	    246u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_THERMAL_SHUT_DOWN,	            247u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_THERMAL_OVERLOAD,	            248u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_REFERENCE_RUNNING,	            249u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_REFERENCE_MEASUREMENT_FAILED,	250u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_CURRENT_PROTECTOR_ENABLED,	    251u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_OPERATING_MODE_DT6,  	        252u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_FAST_FADE_TIME,	            253u,   	NONE_ID,        IEC_207,    0)
-DALI_AUTO_DEF( QUERY_MIN_FAST_FADE_TIME,	        254u,   	NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( REFERENCE_SYSTEM_POWER,              224u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( ENABLE_CURRENT_PROTECTOR,            225u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( DISABLE_CURRENT_PROTECTOR,           226u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( SELECT_DIMMING_CURVE,                227u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( STORE_DTR_AS_FAST_FADE_TIME,         228u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_GEAR_TYPE,                     237u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_DIMMING_CURVE,                 238u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_POSSIBLE_OPERATING_MODES,      239u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_FEATURES,                      240u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_FAILURE_STATUS,                241u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_SHORT_CIRCUIT,                 242u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_OPEN_CIRCUIT,                  243u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_LOAD_DECREASE,                 244u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_LOAD_INCREASE,                 245u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_CURRENT_PROTECTOR_ACTIVE,      246u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_THERMAL_SHUT_DOWN,             247u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_THERMAL_OVERLOAD,              248u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_REFERENCE_RUNNING,             249u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_REFERENCE_MEASUREMENT_FAILED,  250u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_CURRENT_PROTECTOR_ENABLED,     251u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_OPERATING_MODE_DT6,            252u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_FAST_FADE_TIME,                253u,       NONE_ID,        IEC_207,    0)
+DALI_AUTO_DEF( QUERY_MIN_FAST_FADE_TIME,            254u,       NONE_ID,        IEC_207,    0)
 
 
-DALI_AUTO_DEF( SET_TEMPORARY_X_COORDINATE,          224u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( SET_TEMPORARY_Y_COORDINATE,          225u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( ACTIVATE,                            226u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( X_COORDINATE_STEP_UP,                227u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( X_COORDINATE_STEP_DOWN,              228u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( Y_COORDINATE_STEP_UP,                229u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( Y_COORDINATE_STEP_DOWN,              230u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( SET_TEMPORARY_COLOUR_TEMPERATURE_TC, 231u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( COLOUR_TEMPERATURE_TC_STEP_COOLER,   232u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( COLOUR_TEMPERATURE_TC_STEP_WARMER,   233u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( SET_TEMPORARY_PRIMARY_N_DIMLEVEL,    234u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( SET_TEMPORARY_RGB_DIM_LEVEL,         235u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( SET_TEMPORARY_WAF_DIM_LEVEL,         236u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( SET_TEMPORARY_RGBWAF_CONTROL,        237u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( COPY_REPORT_TO_TEMPORARY,            239u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( STORE_TY_PRIMARY_N,                  240u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( STORY_XY_COORDINATE_PRIMARY_N,       241u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( STORE_COLOUR_TEMPERATURE_TC_LIMIT,   242u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( STORE_GEAR_FEATURES_STATUS,          243u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( ASSIGN_COLOUR_TO_LINKED_CHANNEL,     245u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( START_AUTO_CALIBRATION,              246u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( QUERY_GEAR_FEATURES_STATUS,          247u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( QUERY_COLOR_STATUS,                  248u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( QUERY_COLOR_TYPE_FEATURES,           249u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( QUERY_COLOR_VALUE,                   250u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( QUERY_RGBWAF_CONTROL,                251u,   	NONE_ID,        IEC_209,    0)
-DALI_AUTO_DEF( QUERY_ASSIGNED_COLOUR,               252u,   	NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( SET_TEMPORARY_X_COORDINATE,          224u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( SET_TEMPORARY_Y_COORDINATE,          225u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( ACTIVATE,                            226u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( X_COORDINATE_STEP_UP,                227u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( X_COORDINATE_STEP_DOWN,              228u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( Y_COORDINATE_STEP_UP,                229u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( Y_COORDINATE_STEP_DOWN,              230u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( SET_TEMPORARY_COLOUR_TEMPERATURE_TC, 231u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( COLOUR_TEMPERATURE_TC_STEP_COOLER,   232u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( COLOUR_TEMPERATURE_TC_STEP_WARMER,   233u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( SET_TEMPORARY_PRIMARY_N_DIMLEVEL,    234u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( SET_TEMPORARY_RGB_DIM_LEVEL,         235u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( SET_TEMPORARY_WAF_DIM_LEVEL,         236u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( SET_TEMPORARY_RGBWAF_CONTROL,        237u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( COPY_REPORT_TO_TEMPORARY,            239u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( STORE_TY_PRIMARY_N,                  240u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( STORY_XY_COORDINATE_PRIMARY_N,       241u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( STORE_COLOUR_TEMPERATURE_TC_LIMIT,   242u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( STORE_GEAR_FEATURES_STATUS,          243u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( ASSIGN_COLOUR_TO_LINKED_CHANNEL,     245u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( START_AUTO_CALIBRATION,              246u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( QUERY_GEAR_FEATURES_STATUS,          247u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( QUERY_COLOR_STATUS,                  248u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( QUERY_COLOR_TYPE_FEATURES,           249u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( QUERY_COLOR_VALUE,                   250u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( QUERY_RGBWAF_CONTROL,                251u,       NONE_ID,        IEC_209,    0)
+DALI_AUTO_DEF( QUERY_ASSIGNED_COLOUR,               252u,       NONE_ID,        IEC_209,    0)
+
+#ifdef DALI_AUTO_DEF
+    #undef DALI_AUTO_DEF
+#endif
+#ifdef NONE_ID
+    #undef NONE_ID
+#endif
+#ifdef ADDR_ID
+    #undef ADDR_ID
+#endif
+#ifdef DAPC_ID
+    #undef DAPC_ID
+#endif
+#ifdef GROUP_ID
+    #undef GROUP_ID
+#endif
+#ifdef SCENE_ID
+    #undef SCENE_ID
+#endif
+#ifdef IEC_102
+    #undef IEC_102
+#endif
+#ifdef IEC_207
+    #undef IEC_207
+#endif
+#ifdef IEC_209
+    #undef IEC_209
+#endif
 
 #endif

@@ -2,20 +2,37 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
+#include "dali_structures.h"
 
-#define AUTO_ENUM
-typedef enum
-{ 
-#include "dali_def.h"
-} eDaliCmd;
-#undef AUTO_ENUM
 
 #define AUTO_STR
-const char *cmds_102[] =
+const char *cmd_ids[] =
 {
     #include "dali_def.h"
 };
 #undef AUTO_STR
+
+
+eDaliEntry DT0Lut[]=
+{
+#define AUTO_LUT_102
+#include "dali_def.h"
+#undef AUTO_LUT_102
+};
+
+eDaliEntry DT6Lut[]=
+{
+#define AUTO_LUT_207
+#include "dali_def.h"
+#undef AUTO_LUT_207
+};
+
+eDaliEntry DT8Lut[]=
+{
+#define AUTO_LUT_209
+#include "dali_def.h"
+#undef AUTO_LUT_209
+};
 
 void vDaliTask( void * pvParameters )
 {
@@ -42,7 +59,10 @@ void vDaliTask( void * pvParameters )
         [1]=3,
         [2]=12
     };
-    
-    cmd = CMD_DAPC;
+
+    cmd = CMD_Y_COORDINATE_STEP_UP;
+
+    eDaliEntry daliEntry = DT8Lut[cmd - 224];
+    assert(daliEntry == ARR_Y_COORDINATE_STEP_UP);
 
 }
