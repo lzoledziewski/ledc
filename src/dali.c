@@ -1,6 +1,8 @@
 /** Concept: Manage Table with commands and their handling **/
+#ifndef UNIT_TEST
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#endif
 
 #include "dali_structures.h"
 
@@ -34,17 +36,26 @@ eDaliEntry DT8Lut[]=
 #undef AUTO_LUT_209
 };
 
+eDaliEntry SpecialLut[]=
+{
+    #define AUTO_LUT_SPECIAL
+    #include "dali_def.h"
+    #undef AUTO_LUT_SPECIAL
+};
+
 void vDaliTask( void * pvParameters )
 {
-    bool shutdown = false;
+    unsigned char shutdown = 0;
     // register for command events
 
     //process events
 
-    eDaliCmd cmd;
+
     while (!shutdown)
     {
+        #ifndef UNIT_TEST
         xQueueReceive(0,0,portTICK_PERIOD_MS * 100); 
+        #endif
         /*process message - can be one of:
             - dali msg
                 -  parse, process
@@ -53,16 +64,55 @@ void vDaliTask( void * pvParameters )
             - timer???
         */   
     }
-
-    int array[8] = 
+}
+    
+void parse_msg(uint16_t msg, eAddressMode *addr_mode, eDaliCmd *cmd_id, uint8_t *addr, uint8_t *data)
+{
+    *addr_mode = e_RESERVED;
+    *addr = 0;
+    *cmd_id = CMD_DUMMY;
+    *data = 0u;
+    /*determine CMD ID, addr mode & data*/
+    if (((1 << 15) & msg) == 0)
     {
-        [1]=3,
-        [2]=12
-    };
+        *addr_mode = e_SHORT_ADDR;
+        *addr = msg >> 9;
+    }
+    else if ((0x6000 & msg) == 0x0)
+    {
+        *addr_mode = e_GROUP_ADDR;
+        *addr = (msg >> 9) & 0xF;
+    }
+    else if (0x6200 & msg == 0x6200)
+    {
+        *addr_mode = e_BROADCAST;
+    }
+    else if (0x6000 & msg == 0x6000)
+    {
+        *addr_mode = e_BROADCAST_UNADDR;
+    }
 
-    cmd = CMD_Y_COORDINATE_STEP_UP;
+    if (*addr_mode != e_RESERVED)
+    {
+        if ((1 << 8) & msg)
+        {
+            *cmd_id = msg & 0xFF;
+        }
+        else
+        {
+            *cmd_id = CMD_DAPC;
+            *data = msg & 0xFF;
+        }
+    }
+    /*Can be special or reserved*/
+    else if ((msg >> 8) < 0xCC)
+    {
+        *addr_mode = e_SPECIAL;
+        *data = msg & 0xFF;
+    }
 
-    eDaliEntry daliEntry = DT8Lut[cmd - 224];
-    assert(daliEntry == ARR_Y_COORDINATE_STEP_UP);
+    /*next step is to provide data to each device
+        those addressed should receive all data
+        those not addressed should be notified to clear flags (App extension / Twice flag)*/
 
 }

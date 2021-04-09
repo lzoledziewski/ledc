@@ -47,9 +47,17 @@
 #endif
 
 
-#if defined(AUTO_LUT_102) || defined (AUTO_LUT_207) || defined (AUTO_LUT_209)
-#define NONE_ID(id, offset) [CMD_##id + offset] = ARR_##id,
+#if defined(AUTO_LUT_102) || defined (AUTO_LUT_207) || defined (AUTO_LUT_209) || defined(AUTO_LUT_SPECIAL)
+
+#ifdef AUTO_LUT_SPECIAL
 #define ADDR_ID(id, offset) [CMD_##id + offset] = ARR_##id,
+#define NONE_ID(id, offset) 
+#define DAPC_ID(id, offset) 
+#define SCENE_ID(id, offset) 
+#define GROUP_ID(id, offset) 
+#else
+#define ADDR_ID(id, offset)
+#define NONE_ID(id, offset) [CMD_##id + offset] = ARR_##id,
 #define DAPC_ID(id, offset) /*DAPC is special case without real DALI identifier here*/
 #define SCENE_ID(id, offset) [CMD_##id##_S1 + offset] = ARR_##id,\
                     [CMD_##id##_S2 + offset] = ARR_##id,\
@@ -83,22 +91,28 @@
                     [CMD_##id##_G14 + offset] = ARR_##id,\
                     [CMD_##id##_G15 + offset] = ARR_##id,\
                     [CMD_##id##_G16 + offset] = ARR_##id,
+#endif 
 #ifdef AUTO_LUT_102
 #define IEC_102(id_, addr_type) addr_type(id_, 0)
+#define IEC_207(id_, addr_type)
+#define IEC_209(id_, addr_type)
+#endif 
+#ifdef AUTO_LUT_SPECIAL
+#define IEC_102(id_, addr_type) addr_type(id_, -DALI_CMD_SPECIAL_OFFSET)
 #define IEC_207(id_, addr_type)
 #define IEC_209(id_, addr_type)
 #endif 
 
 #ifdef AUTO_LUT_207
 #define IEC_102(id_, addr_type) 
-#define IEC_207(id_, addr_type) addr_type(id_, -224)
+#define IEC_207(id_, addr_type) addr_type(id_, -DALI_CMD_APP_EXT_OFFSET)
 #define IEC_209(id_, addr_type)
 #endif 
 
 #ifdef AUTO_LUT_209
 #define IEC_102(id_, addr_type) 
 #define IEC_207(id_, addr_type)
-#define IEC_209(id_, addr_type) addr_type(id_, -224)
+#define IEC_209(id_, addr_type) addr_type(id_, -DALI_CMD_APP_EXT_OFFSET)
 #endif 
 
 #define DALI_AUTO_DEF(id, id_num, addr_type, dt, flags) dt(id,addr_type)
@@ -195,6 +209,7 @@ DALI_AUTO_DEF( READ_MEMORY_LOCATION,                0xC5u,      NONE_ID,        
 
 DALI_AUTO_DEF( QUERY_EXTENDED_VERSION_NUMBER,       0xFFu,      NONE_ID,        IEC_102,    F_ANSWER)
 
+/*TODO how to handle Payload -> ENUM (ENUM is > 255))*/
 DALI_AUTO_DEF( TERMINATE,                           0xA1,       ADDR_ID,        IEC_102,    0)
 DALI_AUTO_DEF( DTR0,                                0xA3,       ADDR_ID,        IEC_102,    0)
 DALI_AUTO_DEF( INITIALISE,                          0xA5,       ADDR_ID,        IEC_102,    F_TWICE)
