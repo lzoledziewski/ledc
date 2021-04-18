@@ -1,6 +1,7 @@
 #include "unity.h"
+#include "stdint.h"
 #include "dali.h"
-#include "dali.c"
+//#include "dali.c"
 
 void test_luts()
 {

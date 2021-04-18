@@ -83,11 +83,11 @@ void parse_msg(uint16_t msg, eAddressMode *addr_mode, eDaliCmd *cmd_id, uint8_t 
         *addr_mode = e_GROUP_ADDR;
         *addr = (msg >> 9) & 0xF;
     }
-    else if (0x6200 & msg == 0x6200)
+    else if ((0x6200 & msg) == 0x6200)
     {
         *addr_mode = e_BROADCAST;
     }
-    else if (0x6000 & msg == 0x6000)
+    else if ((0x6000 & msg) == 0x6000)
     {
         *addr_mode = e_BROADCAST_UNADDR;
     }
